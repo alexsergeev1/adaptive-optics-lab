@@ -12,11 +12,15 @@
     <header>
       <span class="overline">Wavefront sensing / closed-loop control</span>
       <h1>Adaptive Optics Lab</h1>
-      <p>Send a resolution chart through a moving phase screen. Switch the mirror on to see what comes back into focus.</p>
+      <p>Watch a resolution chart or a double star through simulated turbulence. Switch the mirror on to see what comes back into focus.</p>
     </header>
     <div class="workspace">
       <section class="controls panel" aria-label="Bench controls">
         <h2>Bench controls</h2>
+        <label class="slider" for="target">Camera target</label>
+        <select id="target"><option value="chart">Resolution chart</option><option value="stars">Double star</option></select>
+        <label class="slider" for="profile">Disturbance</label>
+        <select id="profile"><option value="rolling">Rolling turbulence</option><option value="gusts">Intermittent gusts</option><option value="vibration">Mount vibration</option></select>
         <fieldset>
           <legend>Mirror correction</legend>
           <div class="segments">
@@ -29,12 +33,14 @@
         <input id="strength" type="range" min="0" max="100" value="70">
         <label class="slider" for="speed">Screen speed <output id="speed-value" for="speed">1.0×</output></label>
         <input id="speed" type="range" min="0.2" max="2.5" step="0.1" value="1">
+        <label class="slider" for="delay">Feedback delay <output id="delay-value" for="delay">0 frames</output></label>
+        <input id="delay" type="range" min="0" max="5" value="0">
         <div class="buttons">
           <button type="button" id="pause" aria-pressed="false">Freeze screen</button>
           <button type="button" id="reset">Reset bench</button>
         </div>
         <p>Freeze the screen to compare modes on the exact same distortion.</p>
-        <div class="metric">
+        <div class="metric" id="contrast-panel">
           <span>Fine-line contrast</span>
           <strong id="contrast">—</strong>
           <small id="contrast-reference"></small>
@@ -44,16 +50,21 @@
           <strong id="residual">—</strong>
           <small id="residual-reference"></small>
         </div>
+        <div class="metric">
+          <span>Strehl ratio</span>
+          <strong id="strehl">—</strong>
+          <small id="strehl-reference"></small>
+        </div>
       </section>
       <section class="imaging" aria-label="Science camera comparison">
         <div class="camera-grid">
           <figure class="panel">
             <figcaption><span>Reference camera</span><small>Mirror bypassed</small></figcaption>
-            <canvas class="camera" id="open-image" width="256" height="256" aria-label="Resolution chart with turbulence and no correction" role="img"></canvas>
+            <canvas class="camera" id="open-image" width="256" height="256" aria-label="Reference target with no mirror correction" role="img"></canvas>
           </figure>
           <figure class="panel active-camera">
             <figcaption><span>Corrected camera</span><small id="mode-label">Full correction</small></figcaption>
-            <canvas class="camera" id="closed-image" width="256" height="256" aria-label="Resolution chart with the selected mirror correction" role="img"></canvas>
+            <canvas class="camera" id="closed-image" width="256" height="256" aria-label="Target with the selected mirror correction" role="img"></canvas>
           </figure>
         </div>
         <div class="diagnostics">
@@ -70,6 +81,13 @@
             <canvas id="psf" width="200" height="128" aria-label="Point spread function with the selected mirror correction" role="img"></canvas>
           </figure>
         </div>
+        <section class="panel telemetry" aria-labelledby="telemetry-title">
+          <div class="telemetry-heading">
+            <div><h2 id="telemetry-title">Correction history</h2><p><span class="trace-reference">Reference</span><span class="trace-corrected">Corrected</span></p></div>
+            <div class="buttons"><button type="button" id="save-frame">Save comparison PNG</button><button type="button" id="save-data" disabled>Export CSV</button></div>
+          </div>
+          <canvas id="history" width="760" height="156" role="img" aria-label="Wavefront RMS over time for both cameras"></canvas>
+        </section>
       </section>
     </div>
     <footer>Simulation · Monochromatic Fourier optics · Five controllable wavefront modes</footer>

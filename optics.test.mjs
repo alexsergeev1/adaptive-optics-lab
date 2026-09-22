@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { SIZE, createCamera, disturbance, residualPhase, updateMirror } from "./optics.mjs";
+import { SIZE, createCamera, createMirrorLoop, disturbance, residualPhase, updateMirror } from "./optics.mjs";
 
 test("the Fourier camera conserves flux and the unaberrated point peaks on axis", () => {
   const target = new Float64Array(SIZE * SIZE);
@@ -36,4 +36,15 @@ test("full correction recovers a sharper point source across frozen screens", ()
     assert.ok(corrected.peakRatio > tilted.peakRatio * 1.8);
     assert.ok(corrected.peakRatio > 0.72);
   }
+});
+
+test("feedback waits for the configured frame delay and clears on bypass", () => {
+  const loop = createMirrorLoop();
+  const first = [1, 0, 0, 0, 0, 0, 0, 0, 0];
+  const second = first.map((value) => -value);
+  assert.deepEqual(loop.step(first, 5, 2), []);
+  assert.deepEqual(loop.step(second, 5, 2), []);
+  assert.ok(loop.step(second, 5, 2)[0] > 0.5);
+  assert.deepEqual(loop.step(second, 0, 2), []);
+  assert.ok(loop.step(second, 5, 0)[0] < -0.5);
 });

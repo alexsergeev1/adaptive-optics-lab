@@ -18,10 +18,16 @@ const amplitudes = [0.95, 0.85, 1.5, 1.25, 1.08, 0.10, 0.09, 0.08, 0.075];
 const frequencies = [1.0, 1.2, 0.48, 0.62, 0.79, 1.41, 1.23, 1.66, 1.82];
 const offsets = [0.9, 2.1, 1.3, 1.6, 0.4, 0.8, 2.3, 1.2, 2.2];
 
-export function disturbance(time, strength) {
-  return amplitudes.map((amplitude, i) =>
-    strength * amplitude * (Math.sin(time * frequencies[i] + offsets[i]) +
+export function disturbance(time, strength, profile = "rolling") {
+  const gust = profile === "gusts" ? 0.62 + 0.72 * Math.sin(0.77 * time + 0.55) ** 8 : 1;
+  const screen = amplitudes.map((amplitude, i) =>
+    strength * gust * amplitude * (Math.sin(time * frequencies[i] + offsets[i]) +
       0.18 * Math.sin(time * frequencies[i] * 2.3 + i)));
+  if (profile === "vibration") {
+    screen[0] += strength * 1.3 * Math.sin(5.4 * time + 0.8);
+    screen[1] += strength * 0.8 * Math.sin(4.3 * time + 0.5);
+  }
+  return screen;
 }
 
 export const lenslets = [];
@@ -75,12 +81,39 @@ export function sense(coefficients) {
 }
 
 export function updateMirror(atmosphere, previous, count) {
-  const residual = atmosphere.map((value, i) => value - (previous[i] ?? 0));
-  const slopes = sense(residual);
+  return correctSlopes(sense(residualPhase(atmosphere, previous)), previous, count);
+}
+
+function correctSlopes(slopes, previous, count) {
   return reconstructors[count].map((row, i) => {
     const command = (previous[i] ?? 0) + 0.52 * dot(row, slopes);
     return Math.max(-6, Math.min(6, command));
   });
+}
+
+export function createMirrorLoop() {
+  const pending = [];
+  let commands = [];
+  let previousMode = 0;
+  let previousDelay = 0;
+  return {
+    reset() {
+      commands = [];
+      pending.length = 0;
+    },
+    step(atmosphere, mode, delay) {
+      if (mode !== previousMode || delay !== previousDelay) {
+        pending.length = 0;
+        commands = commands.slice(0, mode);
+        previousMode = mode;
+        previousDelay = delay;
+      }
+      const slopes = sense(residualPhase(atmosphere, commands));
+      pending.push(slopes);
+      if (pending.length > delay) commands = correctSlopes(pending.shift(), commands, mode);
+      return commands;
+    },
+  };
 }
 
 export function residualPhase(atmosphere, mirror) {

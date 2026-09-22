@@ -33,9 +33,11 @@ legend, .slider { margin-bottom: 6px; color: var(--muted); font: .75rem/1.5 var(
 .slider { display: flex; justify-content: space-between; gap: 8px; }
 output { color: var(--accent); }
 input[type="range"] { width: 100%; margin: 0 0 15px; accent-color: var(--accent); }
+select { width: 100%; margin: 0 0 14px; padding: 7px 8px; color: inherit; font: inherit; font-size: .78rem; background: #1a2030; border: 1px solid var(--line); border-radius: 5px; }
 .buttons { display: flex; flex-wrap: wrap; gap: 7px; }
 button { color: inherit; font: inherit; font-size: .76rem; padding: 7px 9px; background: #1a2030; border: 1px solid var(--line); border-radius: 5px; cursor: pointer; }
 button:hover, button[aria-pressed="true"] { border-color: var(--accent); }
+button:disabled { opacity: .55; cursor: default; }
 .controls p { margin: 10px 0 14px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
 .metric { border-top: 1px solid var(--line); padding: 11px 0 3px; font: .72rem/1.5 var(--mono); }
 .metric strong { display: block; font-size: 1.2rem; color: var(--accent); }
@@ -48,11 +50,22 @@ figcaption small { font: .67rem/1.4 var(--mono); }
 canvas { display: block; width: 100%; height: auto; background: #080910; }
 .camera { aspect-ratio: 1; }
 .diagnostics { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 10px; }
+.telemetry { margin-top: 10px; overflow: hidden; }
+.telemetry-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: start; gap: 8px; padding: 11px 12px; }
+.telemetry h2 { margin: 0; }
+.telemetry p { display: flex; gap: 12px; margin: 5px 0 0; font: .67rem/1.4 var(--mono); }
+.trace-reference { color: #f6b894; }
+.trace-corrected { color: var(--accent); }
+#history { height: 156px; }
 footer { margin-top: 19px; }
 @media (max-width: 790px) {
   main { padding: 24px 14px; }
   .workspace { grid-template-columns: minmax(0, 1fr); }
-  .imaging { grid-row: 1; }
+  .imaging { display: contents; }
+  .camera-grid { grid-row: 1; }
+  .controls { grid-row: 2; }
+  .diagnostics { grid-row: 3; margin-top: 0; }
+  .telemetry { grid-row: 4; margin-top: 0; }
 }
 @media (max-width: 440px) {
   .camera-grid, .diagnostics { gap: 6px; }
