@@ -1,4 +1,4 @@
-import { SIZE, createCamera, createMirrorLoop, disturbance, lenslets, phaseAt, residualPhase, sense } from "./optics.mjs";
+import { SIZE, createCamera, createMirrorLoop, disturbance, lenslets, phaseAt, residualPhase, sense } from "./optics.mjs?v=2";
 
 const $ = (id) => document.getElementById(id);
 const strength = $("strength");
@@ -309,6 +309,8 @@ $("save-frame").addEventListener("click", () => {
 });
 
 window.addEventListener("resize", paintHistory);
-setPaused(matchMedia("(prefers-reduced-motion: reduce)").matches);
+const doubleStarView = new URLSearchParams(location.search).get("view") === "double-star";
+if (doubleStarView) target.value = "stars";
+setPaused(doubleStarView || matchMedia("(prefers-reduced-motion: reduce)").matches);
 render(15);
 requestAnimationFrame(frame);
