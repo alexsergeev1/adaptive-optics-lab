@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An interactive adaptive optics bench with a Shack–Hartmann sensor and simulated deformable mirror.">
+  <title>Adaptive Optics Lab</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main>
+    <header>
+      <span class="overline">Wavefront sensing / closed-loop control</span>
+      <h1>Adaptive Optics Lab</h1>
+      <p>Send a resolution chart through a moving phase screen. Switch the mirror on to see what comes back into focus.</p>
+    </header>
+    <div class="workspace">
+      <section class="controls panel" aria-label="Bench controls">
+        <h2>Bench controls</h2>
+        <fieldset>
+          <legend>Mirror correction</legend>
+          <div class="segments">
+            <label><input type="radio" name="mirror" value="0"><span>Off</span></label>
+            <label><input type="radio" name="mirror" value="2"><span>Tip / tilt</span></label>
+            <label><input type="radio" name="mirror" value="5" checked><span>Full</span></label>
+          </div>
+        </fieldset>
+        <label class="slider" for="strength">Turbulence <output id="strength-value" for="strength">70%</output></label>
+        <input id="strength" type="range" min="0" max="100" value="70">
+        <label class="slider" for="speed">Screen speed <output id="speed-value" for="speed">1.0×</output></label>
+        <input id="speed" type="range" min="0.2" max="2.5" step="0.1" value="1">
+        <div class="buttons">
+          <button type="button" id="pause" aria-pressed="false">Freeze screen</button>
+          <button type="button" id="reset">Reset bench</button>
+        </div>
+        <p>Freeze the screen to compare modes on the exact same distortion.</p>
+        <div class="metric">
+          <span>Fine-line contrast</span>
+          <strong id="contrast">—</strong>
+          <small id="contrast-reference"></small>
+        </div>
+        <div class="metric">
+          <span>Residual wavefront RMS</span>
+          <strong id="residual">—</strong>
+          <small id="residual-reference"></small>
+        </div>
+      </section>
+      <section class="imaging" aria-label="Science camera comparison">
+        <div class="camera-grid">
+          <figure class="panel">
+            <figcaption><span>Reference camera</span><small>Mirror bypassed</small></figcaption>
+            <canvas class="camera" id="open-image" width="256" height="256" aria-label="Resolution chart with turbulence and no correction" role="img"></canvas>
+          </figure>
+          <figure class="panel active-camera">
+            <figcaption><span>Corrected camera</span><small id="mode-label">Full correction</small></figcaption>
+            <canvas class="camera" id="closed-image" width="256" height="256" aria-label="Resolution chart with the selected mirror correction" role="img"></canvas>
+          </figure>
+        </div>
+        <div class="diagnostics">
+          <figure class="panel">
+            <figcaption><span>Wavefront sensor</span><small>Lenslet spot shifts</small></figcaption>
+            <canvas id="sensor" width="200" height="128" aria-label="Shack–Hartmann reference and measured spots" role="img"></canvas>
+          </figure>
+          <figure class="panel">
+            <figcaption><span>Mirror command</span><small>Phase in radians</small></figcaption>
+            <canvas id="mirror" width="200" height="128" aria-label="Simulated deformable mirror phase command" role="img"></canvas>
+          </figure>
+          <figure class="panel">
+            <figcaption><span>Point source</span><small>Log intensity</small></figcaption>
+            <canvas id="psf" width="200" height="128" aria-label="Point spread function with the selected mirror correction" role="img"></canvas>
+          </figure>
+        </div>
+      </section>
+    </div>
+    <footer>Simulation · Monochromatic Fourier optics · Five controllable wavefront modes</footer>
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
